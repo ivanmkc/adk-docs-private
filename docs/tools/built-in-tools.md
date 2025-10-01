@@ -39,6 +39,12 @@ The `google_search` tool allows the agent to perform web searches using Google S
     --8<-- "examples/java/snippets/src/main/java/tools/GoogleSearchAgentApp.java:full_code"
     ```
 
+=== "Golang"
+
+    ```go
+    --8<-- "examples/go/snippets/tools/built-in-tools/google_search.go"
+    ```
+
 ### Code Execution
 
 The `built_in_code_execution` tool enables the agent to execute code,
