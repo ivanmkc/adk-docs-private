@@ -34,6 +34,15 @@ application entirely on your machine and is recommended for internal development
 
     To install ADK and setup the environment, proceed to the following steps.
 
+=== "Go"
+
+    Create a new Go module:
+
+    ```shell
+    go mod init example.com/my-agent
+    go get github.com/google/adk-go
+    ``
+
 ## 2. Create Agent Project { #create-agent-project }
 
 ### Project structure
@@ -139,6 +148,30 @@ application entirely on your machine and is recommended for internal development
     --8<-- "examples/java/cloud-run/src/main/java/agents/multitool/MultiToolAgent.java:full_code"
     ```
 
+=== "Go"
+
+    You will need to create the following project structure:
+
+    ```console
+    parent_folder/
+        go-multitool-agent/
+            main.go
+            go.mod
+    ```
+
+    Create the folder `go-multitool-agent` and the `main.go` file:
+
+    ```bash
+    mkdir go-multitool-agent/
+    touch go-multitool-agent/main.go
+    ```
+
+    Copy and paste the following code into `main.go`:
+
+    ```go title="go-multitool-agent/main.go"
+    --8<-- "examples/go/snippets/get-started/go-multitool-agent/main.go"
+    ```
+
 ![intro_components.png](../assets/quickstart-flow-tool.png)
 
 ## 3. Set up the model { #set-up-the-model }
@@ -170,6 +203,13 @@ agent will be unable to function.
         export GOOGLE_API_KEY=PASTE_YOUR_ACTUAL_API_KEY_HERE
         ```
 
+        When using Go, define environment variables:
+
+        ```console title="terminal"
+        export GOOGLE_GENAI_USE_VERTEXAI=FALSE
+        export GOOGLE_API_KEY=PASTE_YOUR_ACTUAL_API_KEY_HERE
+        ```
+
     3. Replace `PASTE_YOUR_ACTUAL_API_KEY_HERE` with your actual `API KEY`.
 
 === "Gemini - Google Cloud Vertex AI"
@@ -186,6 +226,14 @@ agent will be unable to function.
         ```
 
         When using Java, define environment variables:
+
+        ```console title="terminal"
+        export GOOGLE_GENAI_USE_VERTEXAI=TRUE
+        export GOOGLE_CLOUD_PROJECT=YOUR_PROJECT_ID
+        export GOOGLE_CLOUD_LOCATION=LOCATION
+        ```
+
+        When using Go, define environment variables:
 
         ```console title="terminal"
         export GOOGLE_GENAI_USE_VERTEXAI=TRUE
@@ -213,6 +261,13 @@ agent will be unable to function.
         export GOOGLE_API_KEY=PASTE_YOUR_ACTUAL_EXPRESS_MODE_API_KEY_HERE
         ```
 
+        When using Go, define environment variables:
+
+        ```console title="terminal"
+        export GOOGLE_GENAI_USE_VERTEXAI=TRUE
+        export GOOGLE_API_KEY=PASTE_YOUR_ACTUAL_EXPRESS_MODE_API_KEY_HERE
+        ```
+
 ## 4. Run Your Agent { #run-your-agent }
 
 === "Python"
@@ -234,12 +289,12 @@ agent will be unable to function.
 
         !!! success "Authentication Setup for Vertex AI Users"
             If you selected **"Gemini - Google Cloud Vertex AI"** in the previous step, you must authenticate with Google Cloud before launching the dev UI.
-            
+
             Run this command and follow the prompts:
             ```bash
             gcloud auth application-default login
             ```
-            
+
             **Note:** Skip this step if you're using "Gemini - Google AI Studio".
 
         Run the following command to launch the **dev UI**.
@@ -247,7 +302,7 @@ agent will be unable to function.
         ```shell
         adk web
         ```
-        
+
         !!!info "Note for Windows users"
 
             When hitting the `_make_subprocess_transport NotImplementedError`, consider using `adk web --no-reload` instead.
@@ -310,7 +365,7 @@ agent will be unable to function.
             ```shell
             "Please start by listing files" | adk run file_listing_agent
             ```
-            
+
         Run the following command, to chat with your Weather agent.
 
         ```
@@ -419,6 +474,22 @@ agent will be unable to function.
         ```console
         gradle runAgent
         ```
+=== "Go"
+
+    Using the terminal, navigate to your agent project directory:
+
+    ```console
+    parent_folder/
+        go-multitool-agent/ <-- navigate to this directory
+            main.go
+            go.mod
+    ```
+
+    Run the following command to chat with your agent.
+
+    ```shell
+    go run main.go
+    ```
 
 
 
