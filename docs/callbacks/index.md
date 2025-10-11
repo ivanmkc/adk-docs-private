@@ -47,6 +47,9 @@ Callbacks are a cornerstone feature of ADK, providing a powerful mechanism to ho
     === "Golang"
 
         ```go
+        --8<-- "examples/go/snippets/callbacks/main.go:imports"
+
+
         --8<-- "examples/go/snippets/callbacks/main.go:callback_basic"
         ```
 
@@ -96,6 +99,9 @@ This example demonstrates the common pattern for a guardrail using `before_model
         
     === "Golang"
         ```go
+        --8<-- "examples/go/snippets/callbacks/main.go:imports"
+
+        
         --8<-- "examples/go/snippets/callbacks/main.go:guardrail_init"
         ```
 
