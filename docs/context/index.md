@@ -434,9 +434,6 @@ You'll frequently need to read information stored within the context.
 
         ```go
         --8<-- "examples/go/snippets/context/main.go:accessing_state_tool"
-        ```
-
-        ```go
         --8<-- "examples/go/snippets/context/main.go:accessing_state_callback"
         ```
 
@@ -518,7 +515,7 @@ You'll frequently need to read information stored within the context.
     === "Go"
 
         ```go
-        --8<-- "examples/go/snippets/context/main.go:accessing_user_content_agent"
+        --8<-- "examples/go/snippets/context/main.go:accessing_initial_user_input"
         ```
     
 ### Managing State
