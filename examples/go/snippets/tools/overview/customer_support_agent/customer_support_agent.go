@@ -22,7 +22,6 @@ import (
 
 	"google.golang.org/adk/agent"
 	"google.golang.org/adk/agent/llmagent"
-	"google.golang.org/adk/model"
 	"google.golang.org/adk/model/gemini"
 	"google.golang.org/adk/runner"
 	"google.golang.org/adk/session"
@@ -137,7 +136,7 @@ If the user indicates urgency, use the 'check_and_transfer' tool.`,
 
 	for {
 		var transferTo string
-		for event, err := range r.Run(ctx, userID, sessionID, content, &agent.RunConfig{}) {
+		for event, err := range r.Run(ctx, userID, sessionID, content, &agent.RunConfig{StreamingMode: agent.StreamingModeNone}) {
 			if err != nil {
 				log.Printf("Agent Error: %v", err)
 				continue
@@ -145,11 +144,8 @@ If the user indicates urgency, use the 'check_and_transfer' tool.`,
 			if event.Actions.TransferToAgent != "" {
 				transferTo = event.Actions.TransferToAgent
 			}
-			if isFinalResponse(event) {
-				texts := textParts(event.LLMResponse.Content)
-				if len(texts) > 0 {
-					fmt.Printf("Agent Response: %s\n", texts[0])
-				}
+			if event.LLMResponse.Content != nil && len(event.LLMResponse.Content.Parts) > 0 {
+				fmt.Printf("Agent Response: %s\n", event.LLMResponse.Content.Parts[0].Text)
 			}
 		}
 
@@ -171,56 +167,3 @@ If the user indicates urgency, use the 'check_and_transfer' tool.`,
 	}
 }
 
-func isFinalResponse(ev *session.Event) bool {
-	if ev.Actions.SkipSummarization || len(ev.LongRunningToolIDs) > 0 {
-		return true
-	}
-	if ev.LLMResponse == nil {
-		return true
-	}
-	return !hasFunctionCalls(ev.LLMResponse) && !hasFunctionResponses(ev.LLMResponse) && !ev.LLMResponse.Partial && !hasTrailingCodeExecutionResult(ev.LLMResponse)
-}
-
-func hasFunctionCalls(resp *model.LLMResponse) bool {
-	if resp == nil || resp.Content == nil {
-		return false
-	}
-	for _, part := range resp.Content.Parts {
-		if part.FunctionCall != nil {
-			return true
-		}
-	}
-	return false
-}
-
-func hasFunctionResponses(resp *model.LLMResponse) bool {
-	if resp == nil || resp.Content == nil {
-		return false
-	}
-	for _, part := range resp.Content.Parts {
-		if part.FunctionResponse != nil {
-			return true
-		}
-	}
-	return false
-}
-
-func hasTrailingCodeExecutionResult(resp *model.LLMResponse) bool {
-	if resp == nil || resp.Content == nil || len(resp.Content.Parts) == 0 {
-		return false
-	}
-	lastPart := resp.Content.Parts[len(resp.Content.Parts)-1]
-	return lastPart.CodeExecutionResult != nil
-}
-
-func textParts(c *genai.Content) (ret []string) {
-	if c == nil {
-		return nil
-	}
-	for _, p := range c.Parts {
-		if p.Text != "" {
-			ret = append(ret, p.Text)
-		}
-	}
-	return ret
-}
