@@ -12,6 +12,7 @@ import (
 	"google.golang.org/adk/agent/llmagent"
 	"google.golang.org/adk/model/gemini"
 	"google.golang.org/adk/tool"
+	"google.golang.org/adk/tool/functiontool"
 	"google.golang.org/genai"
 )
 
@@ -21,11 +22,11 @@ const (
 )
 
 type retrieveOrderByIdArgs struct {
-	OrderID string
+	OrderID string	`json:"order_id"`
 }
 
 type retrieveOrderByIdResult struct {
-	Status string
+	Status string	`json:"status"`
 }
 
 func retrieveOrderById(ctx tool.Context, args retrieveOrderByIdArgs) retrieveOrderByIdResult {
@@ -55,8 +56,8 @@ func main() {
 	}
 
 	// Define a custom tool to retrieve customer orders by ID.
-	customerOrderTool, err := tool.NewFunctionTool(
-		tool.FunctionToolConfig{
+	customerOrderTool, err := functiontool.New(
+		functiontool.Config{
 			Name:        "retrieveOrderById",
 			Description: "Retrieves customer orders by id.",
 		}, retrieveOrderById)
