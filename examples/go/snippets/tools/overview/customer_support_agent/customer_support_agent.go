@@ -102,6 +102,7 @@ Mentioned you are a support handler and please help the user with their urgent i
 Answer general queries.
 If the user indicates urgency, use the 'check_and_transfer' tool.`,
 		Tools:     []tool.Tool{escalationTool},
+		SubAgents: []agent.Agent{supportAgent},
 	})
 	if err != nil {
 		log.Fatalf("Failed to create main agent: %v", err)
@@ -132,37 +133,19 @@ If the user indicates urgency, use the 'check_and_transfer' tool.`,
 	fmt.Printf("User Query: %s\n", query)
 	content := genai.NewContentFromText(query, "user")
 
-	currentAgent := agent.Agent(mainAgent)
-
-	for {
-		var transferTo string
-		for event, err := range r.Run(ctx, userID, sessionID, content, &agent.RunConfig{StreamingMode: agent.StreamingModeNone}) {
-			if err != nil {
-				log.Printf("Agent Error: %v", err)
-				continue
-			}
-			if event.Actions.TransferToAgent != "" {
-				transferTo = event.Actions.TransferToAgent
-			}
-			if event.LLMResponse.Content != nil && len(event.LLMResponse.Content.Parts) > 0 {
-				fmt.Printf("Agent Response: %s\n", event.LLMResponse.Content.Parts[0].Text)
-			}
+	var events []*session.Event
+	for event, err := range r.Run(ctx, userID, sessionID, content, &agent.RunConfig{StreamingMode: agent.StreamingModeNone}) {
+		if err != nil {
+			log.Printf("Agent Error: %v", err)
+			continue
 		}
+		events = append(events, event)
+	}
 
-		if transferTo == "support_agent" {
-			fmt.Println("--- Transferring to support_agent ---")
-			currentAgent = supportAgent
-			r, err = runner.New(runner.Config{
-				AppName:        appName,
-				Agent:          currentAgent,
-				SessionService: sessionService,
-			})
-			if err != nil {
-				log.Fatalf("Failed to create new runner for support agent: %v", err)
-			}
-			content = genai.NewContentFromText("The user has an urgent issue, please assist them.", "user")
-		} else {
-			break
+	if len(events) > 0 {
+		lastEvent := events[len(events)-1]
+		if lastEvent.LLMResponse.Content != nil && len(lastEvent.LLMResponse.Content.Parts) > 0 {
+			fmt.Printf("Agent Response: %s\n", lastEvent.LLMResponse.Content.Parts[0].Text)
 		}
 	}
 }
