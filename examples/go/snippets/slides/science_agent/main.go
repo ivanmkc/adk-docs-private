@@ -1,11 +1,14 @@
 package main
 
 import (
-	"bufio"
 	"context"
 	"fmt"
 	"log"
-	"os"
+
+	"google.golang.org/adk/artifact"
+	"google.golang.org/adk/cmd/launcher/adk"
+	"google.golang.org/adk/cmd/launcher/web"
+	"google.golang.org/adk/cmd/restapi/services"
 
 	"google.golang.org/adk/agent"
 	"google.golang.org/adk/runner"
@@ -37,7 +40,7 @@ func scienceAgentExample(ctx context.Context) {
 		Name:        "science-app",
 		Description: "Science teacher agent",
 		Model:       model,
-		Instruction: `You are a helpful science teacher that explains science concepts to students.`,
+		Instruction: `You are a helpful science teacher that explains science concepts to students. Reply with under 5 sentences only.`,
 		Tools: []tool.Tool{
 			searchTool,
 		},
@@ -49,58 +52,78 @@ func scienceAgentExample(ctx context.Context) {
 
 	// Setting up the runner and session
 	sessionService := session.InMemoryService()
-	config := runner.Config{
-		AppName:        appName,
-		Agent:          scienceTeacherAgent,
-		SessionService: sessionService,
-	}
-	r, err := runner.New(config)
+	// config := runner.Config{
+	// 	AppName:        appName,
+	// 	Agent:          scienceTeacherAgent,
+	// 	SessionService: sessionService,
+	// }
+	// r, err := runner.New(config)
 
-	if err != nil {
-		log.Fatalf("failed to create the runner: %v", err)
-	}
+	// if err != nil {
+	// 	log.Fatalf("failed to create the runner: %v", err)
+	// }
 
-	session, err := sessionService.Create(ctx, &session.CreateRequest{
-		AppName: appName,
-		UserID:  userID,
+	// session, err := sessionService.Create(ctx, &session.CreateRequest{
+	// 	AppName: appName,
+	// 	UserID:  userID,
+	// })
+
+	// if err != nil {
+	// 	log.Fatalf("failed to create the session service: %v", err)
+	// }
+
+	artifactservice := artifact.InMemoryService()
+
+	agentLoader := services.NewStaticAgentLoader(
+		scienceTeacherAgent,
+		map[string]agent.Agent{
+			"science_agent": scienceTeacherAgent,
+		},
+	)
+
+	// Web UI
+	webConfig, _, _ := web.ParseArgs([]string{})
+	fmt.Println(webConfig)
+	web.Serve(webConfig, &adk.Config{
+		SessionService:  sessionService,
+		AgentLoader:     agentLoader,
+		ArtifactService: artifactservice,
 	})
 
-	if err != nil {
-		log.Fatalf("failed to create the session service: %v", err)
-	}
 
+	// // INTERACTIVE LOOP
+	// reader := bufio.NewReader(os.Stdin)
 
-	reader := bufio.NewReader(os.Stdin)
+	// for {
+	// 	fmt.Print("\nUser -> ")
 
-	for {
-		fmt.Print("\nUser -> ")
+	// 	userInput, err := reader.ReadString('\n')
+	// 	if err != nil {
+	// 		log.Fatal(err)
+	// 	}
 
-		userInput, err := reader.ReadString('\n')
-		if err != nil {
-			log.Fatal(err)
-		}
+	// 	userMsg := genai.NewContentFromText(userInput, genai.RoleUser)
 
-		userMsg := genai.NewContentFromText(userInput, genai.RoleUser)
+	// 	streamingMode := agent.StreamingModeSSE
 
-		streamingMode := agent.StreamingModeSSE
+	// 	fmt.Print("\nAgent -> ")
+	// 	for event, err := range r.Run(ctx, userID, session.Session.ID(), userMsg, agent.RunConfig{
+	// 		StreamingMode: streamingMode,
+	// 	}) {
+	// 		if err != nil {
+	// 			fmt.Printf("\nAGENT_ERROR: %v\n", err)
+	// 		} else if event != nil {
+	// 			for _, p := range event.Content.Parts {
+	// 				// if its running in streaming mode, don't print the non partial llmResponses
+	// 				if streamingMode != agent.StreamingModeSSE || event.LLMResponse.Partial {
+	// 					fmt.Print(p.Text)
+	// 				}
+	// 			}
+	// 		}
+	// 	}
+	// }
 
-		fmt.Print("\nAgent -> ")
-		for event, err := range r.Run(ctx, userID, session.Session.ID(), userMsg, agent.RunConfig{
-			StreamingMode: streamingMode,
-		}) {
-			if err != nil {
-				fmt.Printf("\nAGENT_ERROR: %v\n", err)
-			} else if event != nil {
-				for _, p := range event.Content.Parts {
-					// if its running in streaming mode, don't print the non partial llmResponses
-					if streamingMode != agent.StreamingModeSSE || event.LLMResponse.Partial {
-						fmt.Print(p.Text)
-					}
-				}
-			}
-		}
-	}
-
+	// SINGLE RUN EXAMPLE
 	// sessionID := session.Session.ID()
 	// prompt := "Why is the sky blue?"
 
