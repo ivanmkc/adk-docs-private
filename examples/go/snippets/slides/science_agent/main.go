@@ -1,9 +1,11 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"google.golang.org/adk/agent"
 	"google.golang.org/adk/runner"
@@ -67,25 +69,57 @@ func scienceAgentExample(ctx context.Context) {
 		log.Fatalf("failed to create the session service: %v", err)
 	}
 
-	sessionID := session.Session.ID()
-	prompt := "Why is the sky blue?"
 
-	userMsg := &genai.Content{
-		Parts: []*genai.Part{{Text: prompt}},
-		Role:  string(genai.RoleUser),
-	}
+	reader := bufio.NewReader(os.Stdin)
 
-	for event, err := range r.Run(ctx, userID, sessionID, userMsg, agent.RunConfig{
-		StreamingMode: agent.StreamingModeNone,
-	}) {
+	for {
+		fmt.Print("\nUser -> ")
+
+		userInput, err := reader.ReadString('\n')
 		if err != nil {
-			fmt.Printf("\nAGENT_ERROR: %v\n", err)
-		} else {
-			for _, p := range event.Content.Parts {
-				fmt.Print(p.Text)
+			log.Fatal(err)
+		}
+
+		userMsg := genai.NewContentFromText(userInput, genai.RoleUser)
+
+		streamingMode := agent.StreamingModeSSE
+
+		fmt.Print("\nAgent -> ")
+		for event, err := range r.Run(ctx, userID, session.Session.ID(), userMsg, agent.RunConfig{
+			StreamingMode: streamingMode,
+		}) {
+			if err != nil {
+				fmt.Printf("\nAGENT_ERROR: %v\n", err)
+			} else if event != nil {
+				for _, p := range event.Content.Parts {
+					// if its running in streaming mode, don't print the non partial llmResponses
+					if streamingMode != agent.StreamingModeSSE || event.LLMResponse.Partial {
+						fmt.Print(p.Text)
+					}
+				}
 			}
 		}
 	}
+
+	// sessionID := session.Session.ID()
+	// prompt := "Why is the sky blue?"
+
+	// userMsg := &genai.Content{
+	// 	Parts: []*genai.Part{{Text: prompt}},
+	// 	Role:  string(genai.RoleUser),
+	// }
+
+	// for event, err := range r.Run(ctx, userID, sessionID, userMsg, agent.RunConfig{
+	// 	StreamingMode: agent.StreamingModeNone,
+	// }) {
+	// 	if err != nil {
+	// 		fmt.Printf("\nAGENT_ERROR: %v\n", err)
+	// 	} else {
+	// 		for _, p := range event.Content.Parts {
+	// 			fmt.Print(p.Text)
+	// 		}
+	// 	}
+	// }
 }
 
 func genericAgentExample(ctx context.Context) {
@@ -162,6 +196,6 @@ func genericAgentExample(ctx context.Context) {
 func main() {
 	ctx := context.Background()
 
-	// scienceAgentExample(ctx)
-	genericAgentExample(ctx)
+	scienceAgentExample(ctx)
+	// genericAgentExample(ctx)
 }
