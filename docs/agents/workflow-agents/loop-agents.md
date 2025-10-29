@@ -50,3 +50,8 @@ In this setup, the `LoopAgent` would manage the iterative process.  The `CriticA
         --8<-- "examples/java/snippets/src/main/java/agents/workflow/LoopAgentExample.java:init"
         ```
 
+    === "Golang"
+        ```go
+        --8<-- "examples/go/snippets/agents/workflow-agents/loop/main.go:init"
+        ```
+
