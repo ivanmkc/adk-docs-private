@@ -49,6 +49,15 @@ The core of any custom agent is the method where you define its unique asynchron
     *   **Reactive Stream (`Flowable`):** It must return an `io.reactivex.rxjava3.core.Flowable<Event>`. This `Flowable` represents a stream of events that will be produced by the custom agent's logic, often by combining or transforming multiple `Flowable` from sub-agents.
     *   **`ctx` (InvocationContext):** Provides access to crucial runtime information, most importantly `ctx.session().state()`, which is a `java.util.concurrent.ConcurrentMap<String, Object>`. This is the primary way to share data between steps orchestrated by your custom agent.
 
+=== "Go"
+
+    In Go, you implement the `Run` method as part of a struct that satisfies the `agent.Agent` interface. The actual logic is typically a method on your custom agent struct.
+
+    *   **Signature:** `Run(ctx agent.InvocationContext) iter.Seq2[*session.Event, error]`
+    *   **Iterator:** The `Run` method returns an iterator (`iter.Seq2`) that yields events and errors. This is the standard way to handle streaming results from an agent's execution.
+    *   **`ctx` (InvocationContext):** The `agent.InvocationContext` provides access to the session, including state, and other crucial runtime information.
+    *   **Session State:** You can access the session state through `ctx.Session().State()`.
+
 **Key Capabilities within the Core Asynchronous Method:**
 
 === "Python"
@@ -123,6 +132,46 @@ The core of any custom agent is the method where you define its unique asynchron
           *   **Conditional:** `Flowable.defer()` to choose which `Flowable` to subscribe to based on a condition, or `filter()` if you're filtering events within a stream.
           *   **Iterative:** Operators like `repeat()`, `retry()`, or by structuring your `Flowable` chain to recursively call parts of itself based on conditions (often managed with `flatMapPublisher` or `concatMap`).
 
+=== "Go"
+
+    1. **Calling Sub-Agents:** You invoke sub-agents by calling their `Run` method.
+
+          ```go
+          // Example: Running one sub-agent and yielding its events
+          for event, err := range someSubAgent.Run(ctx) {
+              if err != nil {
+                  // Handle or propagate the error
+                  return
+              }
+              // Yield the event up to the caller
+              yield(event, nil)
+          }
+          ```
+
+    2. **Managing State:** Read from and write to the session state to pass data between sub-agent calls or make decisions.
+          ```go
+          // The `ctx` (`agent.InvocationContext`) is passed directly to your agent's `Run` function.
+          // Read data set by a previous agent
+          previousResult, err := ctx.Session().State().Get("some_key")
+          if err != nil {
+              // Handle cases where the key might not exist yet
+          }
+
+          // Make a decision based on state
+          if val, ok := previousResult.(string); ok && val == "some_value" {
+              // ... call a specific sub-agent ...
+          } else {
+              // ... call another sub-agent ...
+          }
+
+          // Store a result for a later step
+          if err := ctx.Session().State().Set("my_custom_result", "calculated_value"); err != nil {
+              // Handle error
+          }
+          ```
+
+    3. **Implementing Control Flow:** Use standard Go constructs (`if`/`else`, `for`/`switch` loops, goroutines, channels) to create sophisticated, conditional, or iterative workflows involving your sub-agents.
+
 ## Managing Sub-Agents and State
 
 Typically, a custom agent orchestrates other agents (like `LlmAgent`, `LoopAgent`, etc.).
@@ -158,6 +207,14 @@ Let's illustrate the power of custom agents with an example pattern: a multi-sta
     ```java
     --8<-- "examples/java/snippets/src/main/java/agents/StoryFlowAgentExample.java:init"
     ```
+
+=== "Go"
+
+    We define the `StoryFlowAgent` struct and a constructor. In the constructor, we store the necessary sub-agents and tell the `BaseAgent` framework about the top-level agents this custom agent will directly orchestrate.
+
+    ```go
+    --8<-- "examples/go/snippets/agents/custom-agent/storyflow_agent.go:init"
+    ```
 ---
 
 ### Part 2: Defining the Custom Execution Logic { #part-2-defining-the-custom-execution-logic }
@@ -191,6 +248,20 @@ Let's illustrate the power of custom agents with an example pattern: a multi-sta
     3. Then, the `sequentialAgent's` Flowable executes. It calls the `grammar_check` then `tone_check`, reading `current_story` and writing `grammar_suggestions` and `tone_check_result` to the state.
     4. **Custom Part:** After the sequentialAgent completes, logic within a `Flowable.defer` checks the "tone_check_result" from `invocationContext.session().state()`. If it's "negative", the `storyGenerator` Flowable is *conditionally concatenated* and executed again, overwriting "current_story". Otherwise, an empty Flowable is used, and the overall workflow proceeds to completion.
 
+=== "Go"
+
+    The `Run` method orchestrates the sub-agents by calling their respective `Run` methods in a loop and yielding their events.
+
+    ```go
+    --8<-- "examples/go/snippets/agents/custom-agent/storyflow_agent.go:executionlogic"
+    ```
+    **Explanation of Logic:**
+
+    1. The initial `storyGenerator` runs. Its output is expected to be in the session state under the key `"current_story"`.
+    2. The `revisionLoopAgent` runs, which internally calls the `critic` and `reviser` sequentially for `max_iterations` times. They read/write `current_story` and `criticism` from/to the state.
+    3. The `postProcessorAgent` runs, calling `grammar_check` then `tone_check`, reading `current_story` and writing `grammar_suggestions` and `tone_check_result` to the state.
+    4. **Custom Part:** The code checks the `tone_check_result` from the state. If it's "negative", the `story_generator` is called *again*, overwriting the `current_story` in the state. Otherwise, the flow ends.
+
 ---
 
 ### Part 3: Defining the LLM Sub-Agents { #part-3-defining-the-llm-sub-agents }
@@ -212,6 +283,12 @@ These are standard `LlmAgent` definitions, responsible for specific tasks. Their
     --8<-- "examples/java/snippets/src/main/java/agents/StoryFlowAgentExample.java:llmagents"
     ```
 
+=== "Go"
+
+    ```go
+    --8<-- "examples/go/snippets/agents/custom-agent/storyflow_agent.go:llmagents"
+    ```
+
 ---
 
 ### Part 4: Instantiating and Running the custom agent { #part-4-instantiating-and-running-the-custom-agent }
@@ -228,6 +305,12 @@ Finally, you instantiate your `StoryFlowAgent` and use the `Runner` as usual.
 
     ```java
     --8<-- "examples/java/snippets/src/main/java/agents/StoryFlowAgentExample.java:story_flow_agent"
+    ```
+
+=== "Go"
+
+    ```go
+    --8<-- "examples/go/snippets/agents/custom-agent/storyflow_agent.go:story_flow_agent"
     ```
 
 *(Note: The full runnable code, including imports and execution logic, can be found linked below.)*
@@ -250,4 +333,11 @@ Finally, you instantiate your `StoryFlowAgent` and use the `Runner` as usual.
         ```java
         # Full runnable code for the StoryFlowAgent example
         --8<-- "examples/java/snippets/src/main/java/agents/StoryFlowAgentExample.java:full_code"
+        ```
+
+    === "Go"
+
+        ```go
+        # Full runnable code for the StoryFlowAgent example
+        --8<-- "examples/go/snippets/agents/custom-agent/storyflow_agent.go:full_code"
         ```
