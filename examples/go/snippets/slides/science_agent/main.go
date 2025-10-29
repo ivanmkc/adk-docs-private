@@ -90,7 +90,6 @@ func scienceAgentExample(ctx context.Context) {
 		ArtifactService: artifactservice,
 	})
 
-
 	// // INTERACTIVE LOOP
 	// reader := bufio.NewReader(os.Stdin)
 
@@ -185,8 +184,8 @@ func genericAgentExample(ctx context.Context) {
 	session, err := sessionService.Create(ctx, &session.CreateRequest{
 		AppName: appName,
 		UserID:  userID,
-		State:  map[string]any{
-			"topic": "culinary", 
+		State: map[string]any{
+			"topic":    "culinary",
 			"audience": "People that only know 4-letter words",
 		},
 	})

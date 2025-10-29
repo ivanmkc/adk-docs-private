@@ -45,12 +45,7 @@ func agentToolExample(ctx context.Context) {
 		Name:        "root_agent",
 		Description: "Main agent",
 		Model:       model,
-		Instruction: `You are a helpful assistant.
-When the user asks to summarize some text,
-use the 'summarize' tool to generate a summary.
-Always forward the user's message exactly as received to the
-'summarize' tool, without modifying or summarizing it yourself.
-Present the response from the tool to the user.`,
+		Instruction: `You are a helpful assistant. When the user asks to summarize some text, use the 'summarize' tool to generate a summary. Always forward the user's message exactly as received to the 'summarize' tool, without modifying or summarizing it yourself. Present the response from the tool to the user.`,
 		Tools: []tool.Tool{summaryTool}, // Include the AgentTool
 	})
 	if err != nil {
@@ -122,13 +117,8 @@ func subagentExample(ctx context.Context) {
 		Name:        "root_agent",
 		Description: "Main agent",
 		Model:       model,
-		Instruction: `You are a helpful assistant.
-When the user asks to summarize some text,
-use the 'summarize' tool to generate a summary.
-Always forward the user's message exactly as received to the
-'summarize' tool, without modifying or summarizing it yourself.
-Present the response from the tool to the user.`,
-		SubAgents: []agent.Agent{summaryAgent}, // Include the sub-agent
+		Instruction: `You are a helpful assistant. When the user asks to summarize some text, use the 'summarize' tool to generate a summary. Always forward the user's message exactly as received to the 'summarize' tool, without modifying or summarizing it yourself. Present the response from the tool to the user.`,
+		SubAgents:   []agent.Agent{summaryAgent}, // Include the sub-agent
 	})
 	if err != nil {
 		log.Fatalf("failed to create root agent: %v", err)

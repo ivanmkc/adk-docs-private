@@ -22,11 +22,11 @@ const (
 )
 
 type retrieveOrderByIdArgs struct {
-	OrderID string	`json:"order_id"`
+	OrderID string `json:"order_id"`
 }
 
 type retrieveOrderByIdResult struct {
-	Status string	`json:"status"`
+	Status string `json:"status"`
 }
 
 func retrieveOrderById(ctx tool.Context, args retrieveOrderByIdArgs) retrieveOrderByIdResult {
