@@ -35,6 +35,9 @@ A `SequentialAgent` is perfect for this:
 SequentialAgent(sub_agents=[CodeWriterAgent, CodeReviewerAgent, CodeRefactorerAgent])
 ```
 
+<!-- TODO: Golang version -->
+
+
 This ensures the code is written, *then* reviewed, and *finally* refactored, in a strict, dependable order. **The output from each sub-agent is passed to the next by storing them in state via [Output Key](../llm-agents.md#structuring-data-input_schema-output_schema-output_key)**.
 
 !!! note "Shared Invocation Context"
@@ -52,7 +55,7 @@ This ensures the code is written, *then* reviewed, and *finally* refactored, in 
         --8<-- "examples/java/snippets/src/main/java/agents/workflow/SequentialAgentExample.java:init"
         ```
 
-    === "Golang"
+    === "Go"
         ```go
         --8<-- "examples/go/snippets/agents/workflow-agents/sequential/main.go:init"
         ```

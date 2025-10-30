@@ -33,6 +33,9 @@ Imagine a scenario where you want to iteratively improve a document:
 * **Writer Agent:** An `LlmAgent` that generates or refines a draft on a topic.
 * **Critic Agent:** An `LlmAgent` that critiques the draft, identifying areas for improvement.
 
+<!-- TODO: Golang version -->
+
+
     ```py
     LoopAgent(sub_agents=[WriterAgent, CriticAgent], max_iterations=5)
     ```
@@ -50,7 +53,7 @@ In this setup, the `LoopAgent` would manage the iterative process.  The `CriticA
         --8<-- "examples/java/snippets/src/main/java/agents/workflow/LoopAgentExample.java:init"
         ```
 
-    === "Golang"
+    === "Go"
         ```go
         --8<-- "examples/go/snippets/agents/workflow-agents/loop/main.go:init"
         ```

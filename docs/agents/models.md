@@ -2,6 +2,7 @@
 
 !!! Note
     Java ADK currently supports Gemini and Anthropic models. More model support coming soon.
+<!-- TODO: Golang version -->
 
 The Agent Development Kit (ADK) is designed for flexibility, allowing you to
 integrate various Large Language Models (LLMs) into your agents. While the setup
@@ -23,6 +24,7 @@ ADK primarily uses two mechanisms for model integration:
    configurations (like models accessed via LiteLLM). You instantiate a specific
    wrapper class (e.g., `LiteLlm`) and pass this object as the `model` parameter
    to your `LlmAgent`.
+<!-- TODO: Golang version -->
 
 The following sections guide you through using these methods based on your needs.
 
@@ -49,6 +51,9 @@ This section covers authenticating with Google's Gemini models, either through G
     - [Vertex AI: Gemini Live API](https://cloud.google.com/vertex-ai/generative-ai/docs/live-api)
 
 ### Google AI Studio
+
+<!-- TODO: Golang version: check what's applicable, GOOGLE_APPLICATION_CREDENTIALS etc  -->
+
 
 This is the simplest method and is recommended for getting started quickly.
 
@@ -199,7 +204,7 @@ For deployed applications, a service account is the standard method.
     Service account credentials or API keys are powerful credentials. Never expose them publicly. Use a secret manager like [Google Secret Manager](https://cloud.google.com/secret-manager) to store and access them securely in production.
 
 ## Using Anthropic models
-
+<!-- TODO: Golang version: comment needed -->
 ![java_only](https://img.shields.io/badge/Supported_in-Java-orange){ title="This feature is currently available for Java. Python support for direct Anthropic API (non-Vertex) is via LiteLLM."}
 
 You can integrate Anthropic's Claude models directly using their API key or from a Vertex AI backend into your Java ADK applications by using the ADK's `Claude` wrapper class.
@@ -657,6 +662,8 @@ agent_finetuned_gemini = LlmAgent(
 ```
 
 ### Third-Party Models on Vertex AI (e.g., Anthropic Claude)
+
+<!-- TODO: Golang version: comment needed-->
 
 Some providers, like Anthropic, make their models available directly through
 Vertex AI.

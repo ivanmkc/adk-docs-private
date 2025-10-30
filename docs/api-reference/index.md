@@ -26,6 +26,9 @@ The Agent Development Kit (ADK) provides comprehensive API references for both P
     <!-- Or link to an external Javadoc hosting site -->
     <!-- [:octicons-arrow-right-24: View Java API Docs](java/index.html) -->
 
+<!-- TODO: Golang version API Reference-->
+
+
 <!-- This comment forces a block separation -->
 
 -   :material-console:{ .lg .middle } **CLI Reference**
@@ -35,6 +38,10 @@ The Agent Development Kit (ADK) provides comprehensive API references for both P
     valid options and subcommands. 
 
     [:octicons-arrow-right-24: View CLI Docs](cli/index.html) <br>
+
+
+<!-- TODO: Golang version CLI Reference (Universal Launcher?) -->
+
 
 <!-- This comment forces a block separation -->
 

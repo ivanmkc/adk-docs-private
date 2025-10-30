@@ -2,6 +2,9 @@
 
 This quickstart covers the most common starting point for any developer: **"I have an agent. How do I expose it so that other agents can use my agent via A2A?"**. This is crucial for building complex multi-agent systems where different agents need to collaborate and interact.
 
+<!-- TODO: Golang version -->
+
+
 ## Overview
 
 This sample demonstrates how you can easily expose an ADK agent so that it can be then consumed by another agent using the A2A Protocol.

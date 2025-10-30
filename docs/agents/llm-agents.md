@@ -139,13 +139,14 @@ tells the agent:
             .build();
     ```
 
-=== "Golang"
+=== "Go"
 
     ```go
     // Example: Adding instructions
     --8<-- "examples/go/snippets/agents/llm-agents/snippets/main.go:instruction"
     ```
 
+<!-- TODO: Golang version: global_instruction are not supported -->
 *(Note: For instructions that apply to *all* agents in a system, consider using
 `global_instruction` on the root agent, detailed further in the
 [Multi-Agents](multi-agents.md) section.)*
@@ -158,6 +159,9 @@ calculations, fetch real-time data, or execute specific actions.
 
 * **`tools` (Optional):** Provide a list of tools the agent can use. Each item in the list can be:
     * A native function or method (wrapped as a `FunctionTool`). Python ADK automatically wraps the native function into a `FuntionTool` whereas, you must explicitly wrap your Java methods using `FunctionTool.create(...)`
+<!-- TODO: Golang version, to be described,  -->
+<!-- TODO: Golang version - no class inheritance -->
+
     * An instance of a class inheriting from `BaseTool`.
     * An instance of another agent (`AgentTool`, enabling agent-to-agent delegation - see [Multi-Agents](multi-agents.md)).
 
@@ -218,7 +222,8 @@ on the conversation and its instructions.
             .build();
     ```
 
-=== "Golang"
+=== "Go"
+<!-- TODO: Golang version -->
 
     ```go
     --8<-- "examples/go/snippets/agents/llm-agents/snippets/main.go:tool_example"
@@ -271,7 +276,7 @@ You can adjust how the underlying LLM generates responses using `generate_conten
             .build();
     ```
 
-=== "Golang"
+=== "Go"
 
     ```go
     import "google.golang.org/genai"
@@ -340,7 +345,7 @@ For scenarios requiring structured data exchange with an `LLM Agent`, the ADK pr
             .build();
     ```
 
-=== "Golang"
+=== "Go"
 
     The input and output schema is a `google.genai.types.Schema` object.
 
@@ -377,7 +382,7 @@ Control whether the agent receives the prior conversation history.
             .build();
     ```
 
-=== "Golang"
+=== "Go"
 
     ```go
     import "google.golang.org/adk/agent/llmagent"
