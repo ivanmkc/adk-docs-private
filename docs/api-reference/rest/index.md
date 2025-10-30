@@ -7,6 +7,7 @@ For details on using the ADK REST API in practice, see
 !!! tip
     You can view an updated API reference on a running ADK web server by browsing 
     the `/docs` location, for example at: `http://localhost:8000/docs`
+<!-- TODO: Golang version: not supported -->
 
 ## Endpoints
 
@@ -69,3 +70,6 @@ The `Event` object represents an event that occurred during an agent run. It has
 - `timestamp`: The timestamp of the event.
 - `author`: The author of the event.
 - `content`: The content of the event.
+
+
+<!-- TODO: Golang version: make sure it's the same, or document exception -->

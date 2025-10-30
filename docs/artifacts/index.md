@@ -73,6 +73,7 @@ In ADK, **Artifacts** represent a crucial mechanism for managing named, versione
     ```
 
 *   **Persistence & Management:** Artifacts are not stored directly within the agent or session state. Their storage and retrieval are managed by a dedicated **Artifact Service** (an implementation of `BaseArtifactService`, defined in `google.adk.artifacts`. ADK provides various implementations, such as:
+<!-- TODO: Golang version -->
     *   An in-memory service for testing or temporary storage (e.g., `InMemoryArtifactService` in Python, defined in `google.adk.artifacts.in_memory_artifact_service.py`).
     *   A service for persistent storage using Google Cloud Storage (GCS) (e.g., `GcsArtifactService` in Python, defined in `google.adk.artifacts.gcs_artifact_service.py`).
     The chosen service implementation handles versioning automatically when you save data.
@@ -250,7 +251,7 @@ Understanding artifacts involves grasping a few key components: the service that
 * **Best Practice:** Use descriptive names, potentially including file extensions (e.g., `"monthly_report.pdf"`, `"user_avatar.jpg"`), although the extension itself doesn't dictate behavior – the `mime_type` does.
 
 ### Versioning
-
+<!-- TODO: Golang version ver-->
 * **Automatic Versioning:** The artifact service automatically handles versioning. When you call `save_artifact`, the service determines the next available version number (typically starting from 0 and incrementing) for that specific filename and scope.  
 * **Returned by `save_artifact`:** The `save_artifact` method returns the integer version number that was assigned to the newly saved artifact.  
 * **Retrieval:**  
@@ -774,6 +775,8 @@ ADK provides concrete implementations of the `BaseArtifactService` interface, of
 *   **Storage Mechanism:**
     *   Python: Uses a Python dictionary (`self.artifacts`) held in the application's memory. The dictionary keys represent the artifact path, and the values are lists of `types.Part`, where each list element is a version.
     *   Java: Uses nested `HashMap` instances (`private final Map<String, Map<String, Map<String, Map<String, List<Part>>>>> artifacts;`) held in memory. The keys at each level are `appName`, `userId`, `sessionId`, and `filename` respectively. The innermost `List<Part>` stores the versions of the artifact, where the list index corresponds to the version number.
+    <!-- TODO: Golang version -->
+
 *   **Key Features:**
     *   **Simplicity:** Requires no external setup or dependencies beyond the core ADK library.
     *   **Speed:** Operations are typically very fast as they involve in-memory map/dictionary lookups and list manipulations.
@@ -829,6 +832,7 @@ ADK provides concrete implementations of the `BaseArtifactService` interface, of
 
 ### GcsArtifactService
 
+<!-- TODO: Golang version: not supported yet -->
 
 *   **Storage Mechanism:** Leverages Google Cloud Storage (GCS) for persistent artifact storage. Each version of an artifact is stored as a separate object (blob) within a specified GCS bucket.
 *   **Object Naming Convention:** It constructs GCS object names (blob names) using a hierarchical path structure.

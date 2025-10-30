@@ -39,6 +39,8 @@ Imagine researching multiple topics simultaneously:
     ```py
     ParallelAgent(sub_agents=[ResearcherAgent1, ResearcherAgent2, ResearcherAgent3])
     ```
+<!-- TODO: Golang version -->
+
 
 These research tasks are independent.  Using a `ParallelAgent` allows them to run concurrently, potentially reducing the total research time significantly compared to running them sequentially. The results from each agent would be collected separately after they finish.
 

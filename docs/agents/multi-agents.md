@@ -16,6 +16,7 @@ The following sections detail the core ADK primitives—such as agent hierarchy,
 
 ADK provides core building blocks—primitives—that enable you to structure and manage interactions within your multi-agent system.
 
+<!-- TODO: Golang version -->
 !!! Note
     The specific parameters or method names for the primitives may vary slightly by SDK language (e.g., `sub_agents` in Python, `subAgents` in Java). Refer to the language-specific API documentation for details.
 
@@ -23,6 +24,7 @@ ADK provides core building blocks—primitives—that enable you to structure an
 
 The foundation for structuring multi-agent systems is the parent-child relationship defined in `BaseAgent`.
 
+<!-- TODO: Golang version: no parent_agent, no find_agent-->
 * **Establishing Hierarchy:** You create a tree structure by passing a list of agent instances to the `sub_agents` argument when initializing a parent agent. ADK automatically sets the `parent_agent` attribute on each child agent during initialization.
 * **Single Parent Rule:** An agent instance can only be added as a sub-agent once. Attempting to assign a second parent will result in a `ValueError`.
 * **Importance:** This hierarchy defines the scope for [Workflow Agents](#12-workflow-agents-as-orchestrators) and influences the potential targets for LLM-Driven Delegation. You can navigate the hierarchy using `agent.parent_agent` or find descendants using `agent.find_agent(name)`.
@@ -90,6 +92,7 @@ The foundation for structuring multi-agent systems is the parent-child relations
 
 ### 1.2. Workflow Agents as Orchestrators { #workflow-agents-as-orchestrators }
 
+<!-- TODO: Golang version: no derivation from BaseAgent-->
 ADK includes specialized agents derived from `BaseAgent` that don't perform tasks themselves but orchestrate the execution flow of their `sub_agents`.
 
 * **[`SequentialAgent`](workflow-agents/sequential-agents.md):** Executes its `sub_agents` one after another in the order they are listed.
@@ -280,12 +283,14 @@ Agents within a system often need to exchange data or trigger actions in one ano
 
 The most fundamental way for agents operating within the same invocation (and thus sharing the same [`Session`](../sessions/session.md) object via the `InvocationContext`) to communicate passively.
 
+<!-- TODO: Golang version, for instance: ctx.Session().State().Get("data_key"), to be reviewed -->
 * **Mechanism:** One agent (or its tool/callback) writes a value (`context.state['data_key'] = processed_data`), and a subsequent agent reads it (`data = context.state.get('data_key')`). State changes are tracked via [`CallbackContext`](../callbacks/index.md).
 * **Convenience:** The `output_key` property on [`LlmAgent`](llm-agents.md) automatically saves the agent's final response text (or structured output) to the specified state key.
 * **Nature:** Asynchronous, passive communication. Ideal for pipelines orchestrated by `SequentialAgent` or passing data across `LoopAgent` iterations.
 * **See Also:** [State Management](../sessions/state.md)
 
 !!! note "Invocation Context and `temp:` State"
+<!-- TODO: Golang version temp state???? -->
     When a parent agent invokes a sub-agent, it passes the same `InvocationContext`. This means they share the same temporary (`temp:`) state, which is ideal for passing data that is only relevant for the current turn.
 
 === "Python"
@@ -341,7 +346,7 @@ The most fundamental way for agents operating within the same invocation (and th
 #### b) LLM-Driven Delegation (Agent Transfer)
 
 Leverages an [`LlmAgent`](llm-agents.md)'s understanding to dynamically route tasks to other suitable agents within the hierarchy.
-
+<!-- TODO: Golang version -->
 * **Mechanism:** The agent's LLM generates a specific function call: `transfer_to_agent(agent_name='target_agent_name')`.
 * **Handling:** The `AutoFlow`, used by default when sub-agents are present or transfer isn't disallowed, intercepts this call. It identifies the target agent using `root_agent.find_agent()` and updates the `InvocationContext` to switch execution focus.
 * **Requires:** The calling `LlmAgent` needs clear `instructions` on when to transfer, and potential target agents need distinct `description`s for the LLM to make informed decisions. Transfer scope (parent, sub-agent, siblings) can be configured on the `LlmAgent`.
@@ -412,7 +417,7 @@ Leverages an [`LlmAgent`](llm-agents.md)'s understanding to dynamically route ta
     ```
 
 #### c) Explicit Invocation (`AgentTool`)
-
+<!-- TODO: Golang version -->
 Allows an [`LlmAgent`](llm-agents.md) to treat another `BaseAgent` instance as a callable function or [Tool](../tools/index.md).
 
 * **Mechanism:** Wrap the target agent instance in `AgentTool` and include it in the parent `LlmAgent`'s `tools` list. `AgentTool` generates a corresponding function declaration for the LLM.
@@ -541,6 +546,7 @@ These primitives provide the flexibility to design multi-agent interactions rang
 By combining ADK's composition primitives, you can implement various established patterns for multi-agent collaboration.
 
 ### Coordinator/Dispatcher Pattern
+<!-- TODO: Golang version -->
 
 * **Structure:** A central [`LlmAgent`](llm-agents.md) (Coordinator) manages several specialized `sub_agents`.
 * **Goal:** Route incoming requests to the appropriate specialist agent.
@@ -613,6 +619,7 @@ By combining ADK's composition primitives, you can implement various established
     ```
 
 ### Sequential Pipeline Pattern
+<!-- TODO: Golang version -->
 
 * **Structure:** A [`SequentialAgent`](workflow-agents/sequential-agents.md) contains `sub_agents` executed in a fixed order.
 * **Goal:** Implement a multi-step process where the output of one step feeds into the next.
@@ -685,7 +692,7 @@ By combining ADK's composition primitives, you can implement various established
     ```
 
 ### Parallel Fan-Out/Gather Pattern
-
+<!-- TODO: Golang version -->
 * **Structure:** A [`ParallelAgent`](workflow-agents/parallel-agents.md) runs multiple `sub_agents` concurrently, often followed by a later agent (in a `SequentialAgent`) that aggregates results.
 * **Goal:** Execute independent tasks simultaneously to reduce latency, then combine their outputs.
 * **ADK Primitives Used:**
@@ -866,7 +873,7 @@ By combining ADK's composition primitives, you can implement various established
     ```
 
 ### Review/Critique Pattern (Generator-Critic)
-
+<!-- TODO: Golang version -->
 * **Structure:** Typically involves two agents within a [`SequentialAgent`](workflow-agents/sequential-agents.md): a Generator and a Critic/Reviewer.
 * **Goal:** Improve the quality or validity of generated output by having a dedicated agent review it.
 * **ADK Primitives Used:**
@@ -944,7 +951,7 @@ By combining ADK's composition primitives, you can implement various established
     ```
 
 ### Iterative Refinement Pattern
-
+<!-- TODO: Golang version -->
 * **Structure:** Uses a [`LoopAgent`](workflow-agents/loop-agents.md) containing one or more agents that work on a task over multiple iterations.
 * **Goal:** Progressively improve a result (e.g., code, text, plan) stored in the session state until a quality threshold is met or a maximum number of iterations is reached.
 * **ADK Primitives Used:**
@@ -1063,7 +1070,7 @@ By combining ADK's composition primitives, you can implement various established
     ```
 
 ### Human-in-the-Loop Pattern
-
+<!-- TODO: Golang version -->
 * **Structure:** Integrates human intervention points within an agent workflow.
 * **Goal:** Allow for human oversight, approval, correction, or tasks that AI cannot perform.
 * **ADK Primitives Used (Conceptual):**

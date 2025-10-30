@@ -19,6 +19,7 @@ ADK provides distinct agent categories to build sophisticated applications:
 ## Choosing the Right Agent Type
 
 The following table provides a high-level comparison to help distinguish between the agent types. As you explore each type in more detail in the subsequent sections, these distinctions will become clearer.
+<!-- TODO: subclass is not valid in Golang   -->
 
 | Feature              | LLM Agent (`LlmAgent`)              | Workflow Agent                              | Custom Agent (`BaseAgent` subclass)      |
 | :------------------- | :---------------------------------- | :------------------------------------------ |:-----------------------------------------|
