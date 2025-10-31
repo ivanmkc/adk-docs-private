@@ -315,7 +315,7 @@ These methods provide convenient ways for your tool to interact with persistent 
 === "Go"
 
     ```go
-    --8<-- "examples/go/snippets/tools-custom/doc_analysis/main.go"
+    --8<-- "examples/go/snippets/tools-custom/doc_analysis/doc_analysis.go"
     ```
 
 By leveraging the **ToolContext**, developers can create more sophisticated and context-aware custom tools that seamlessly integrate with ADK's architecture and enhance the overall capabilities of their agents.
@@ -422,7 +422,7 @@ Here are key guidelines for defining effective tool functions:
 === "Go"
 
     ```go
-    --8<-- "examples/go/snippets/tools-custom/order_status/main.go"
+    --8<-- "examples/go/snippets/tools-custom/order_status/order_status.go:snippet"
     ```
 
 * **Simplicity and Focus:**
