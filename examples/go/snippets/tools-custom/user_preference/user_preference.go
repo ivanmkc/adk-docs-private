@@ -1,0 +1,38 @@
+package main
+
+// --8<-- [start:example]
+import (
+	"fmt"
+
+	"google.golang.org/adk/tool"
+)
+
+type updateUserPreferenceArgs struct {
+	Preference string `json:"preference"`
+	Value      string `json:"value"`
+}
+
+type updateUserPreferenceResult struct {
+	Status            string `json:"status"`
+	UpdatedPreference string `json:"updated_preference"`
+}
+
+func updateUserPreference(ctx tool.Context, args updateUserPreferenceArgs) updateUserPreferenceResult {
+	userPrefsKey := "user:preferences"
+	preferences, err := ctx.State().Get(userPrefsKey)
+	if err != nil {
+		preferences = make(map[string]any)
+	}
+
+	preferencesMap := preferences.(map[string]any)
+	preferencesMap[args.Preference] = args.Value
+
+	if err := ctx.State().Set(userPrefsKey, preferencesMap); err != nil {
+		return updateUserPreferenceResult{Status: "error"}
+	}
+
+	fmt.Printf("Tool: Updated user preference '%s' to '%s'\n", args.Preference, args.Value)
+	return updateUserPreferenceResult{Status: "success", UpdatedPreference: args.Preference}
+}
+
+// --8<-- [end:example]
