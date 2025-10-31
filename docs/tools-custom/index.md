@@ -177,7 +177,7 @@ The `tool_context.state` attribute provides direct read and write access to the 
 === "Go"
 
     ```go
-    --8<-- "examples/go/snippets/tools-custom/user_preference/main.go"
+    --8<-- "examples/go/snippets/tools-custom/user_preference/user_preference.go:example"
     ```
 
 ### **Controlling Agent Flow**

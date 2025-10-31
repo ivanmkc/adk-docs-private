@@ -90,7 +90,6 @@ func main() {
 	}
 
 	run(ctx, runner, session.Session.ID(), "this is urgent, i cant login")
-	run(ctx, runner, session.Session.ID(), "how do i create a report?")
 }
 
 func run(ctx context.Context, r *runner.Runner, sessionID string, prompt string) {
@@ -100,14 +99,15 @@ func run(ctx context.Context, r *runner.Runner, sessionID string, prompt string)
 		"user1234",
 		sessionID,
 		genai.NewContentFromText(prompt, genai.RoleUser),
-		agent.RunConfig{},
+		agent.RunConfig{
+			StreamingMode: agent.StreamingModeNone,
+		},
 	)
 	for event, err := range events {
 		if err != nil {
 			log.Fatalf("ERROR during agent execution: %v", err)
 		}
-		// if event.IsFinalResponse() {
-			fmt.Printf("Agent Response: %s\n", event.Content.Parts[0].Text)
-		// }
+
+		fmt.Printf("Agent Response: %s\n", event.Content.Parts[0].Text)
 	}
 }

@@ -15,34 +15,6 @@ import (
 	"google.golang.org/genai"
 )
 
-type updateUserPreferenceArgs struct {
-	Preference string `json:"preference"`
-	Value      string `json:"value"`
-}
-
-type updateUserPreferenceResult struct {
-	Status            string `json:"status"`
-	UpdatedPreference string `json:"updated_preference"`
-}
-
-func updateUserPreference(ctx tool.Context, args updateUserPreferenceArgs) updateUserPreferenceResult {
-	userPrefsKey := "user:preferences"
-	preferences, err := ctx.State().Get(userPrefsKey)
-	if err != nil {
-		preferences = make(map[string]any)
-	}
-
-	preferencesMap := preferences.(map[string]any)
-	preferencesMap[args.Preference] = args.Value
-
-	if err := ctx.State().Set(userPrefsKey, preferencesMap); err != nil {
-		return updateUserPreferenceResult{Status: "error"}
-	}
-
-	fmt.Printf("Tool: Updated user preference '%s' to '%s'\n", args.Preference, args.Value)
-	return updateUserPreferenceResult{Status: "success", UpdatedPreference: args.Preference}
-}
-
 func main() {
 	ctx := context.Background()
 	model, err := gemini.NewModel(ctx, "gemini-2.0-flash", &genai.ClientConfig{})
@@ -107,7 +79,7 @@ func run(ctx context.Context, r *runner.Runner, sessionID string, prompt string)
 		if err != nil {
 			log.Fatalf("ERROR during agent execution: %v", err)
 		}
-		
+
 		fmt.Printf("Agent Response: %s\n", event.Content.Parts[0].Text)
 	}
 }
