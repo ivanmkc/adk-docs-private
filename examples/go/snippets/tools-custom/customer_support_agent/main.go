@@ -17,11 +17,11 @@ import (
 )
 
 type checkAndTransferArgs struct {
-	Query string
+	Query string `json:"query"`
 }
 
 type checkAndTransferResult struct {
-	Status string
+	Status string `json:"status"`
 }
 
 func checkAndTransfer(ctx tool.Context, args checkAndTransferArgs) checkAndTransferResult {
@@ -108,6 +108,8 @@ func run(ctx context.Context, r *runner.Runner, sessionID string, prompt string)
 			log.Fatalf("ERROR during agent execution: %v", err)
 		}
 
-		fmt.Printf("Agent Response: %s\n", event.Content.Parts[0].Text)
+		if event.Content.Parts[0].Text != "" {
+			fmt.Printf("Agent Response: %s\n", event.Content.Parts[0].Text)
+		}
 	}
 }

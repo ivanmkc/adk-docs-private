@@ -35,7 +35,11 @@ func processDocument(ctx tool.Context, args processDocumentArgs) processDocument
 	if err != nil {
 		fmt.Printf("Tool: Error searching memory: %v\n", err)
 	}
-	fmt.Printf("Tool: Found %d memory results.\n", len(memoryResp.Memories))
+	memoryResultCount := 0
+	if memoryResp != nil {
+		memoryResultCount = len(memoryResp.Memories)
+	}
+	fmt.Printf("Tool: Found %d memory results.\n", memoryResultCount)
 
 	analysisResult := fmt.Sprintf("Analysis of '%s' regarding '%s' using memory context: [Placeholder Analysis Result]", args.DocumentName, args.AnalysisQuery)
 	fmt.Println("Tool: Performed analysis.")
