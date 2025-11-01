@@ -19,12 +19,16 @@ type updateUserPreferenceResult struct {
 
 func updateUserPreference(ctx tool.Context, args updateUserPreferenceArgs) updateUserPreferenceResult {
 	userPrefsKey := "user:preferences"
-	preferences, err := ctx.State().Get(userPrefsKey)
+	val, err := ctx.State().Get(userPrefsKey)
 	if err != nil {
-		preferences = make(map[string]any)
+		val = make(map[string]any)
 	}
 
-	preferencesMap := preferences.(map[string]any)
+	preferencesMap, ok := val.(map[string]any)
+	if !ok {
+		preferencesMap = make(map[string]any)
+	}
+
 	preferencesMap[args.Preference] = args.Value
 
 	if err := ctx.State().Set(userPrefsKey, preferencesMap); err != nil {

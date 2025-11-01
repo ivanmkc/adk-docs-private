@@ -17,13 +17,13 @@ import (
 )
 
 type getWeatherReportArgs struct {
-	City string
+	City string `json:"city"`
 }
 
 type getWeatherReportResult struct {
-	Status        string `json:"status"`
-	Report        string `json:"report,omitempty"`
-	Error_message string `json:"error_message,omitempty"`
+	Status       string `json:"status"`
+	Report       string `json:"report,omitempty"`
+	ErrorMessage string `json:"error_message,omitempty"`
 }
 
 func getWeatherReport(ctx tool.Context, args getWeatherReportArgs) getWeatherReportResult {
@@ -33,11 +33,11 @@ func getWeatherReport(ctx tool.Context, args getWeatherReportArgs) getWeatherRep
 	if strings.ToLower(args.City) == "paris" {
 		return getWeatherReportResult{Status: "success", Report: "The weather in Paris is sunny with a temperature of 25 degrees Celsius."}
 	}
-	return getWeatherReportResult{Status: "error", Error_message: fmt.Sprintf("Weather information for '%s' is not available.", args.City)}
+	return getWeatherReportResult{Status: "error", ErrorMessage: fmt.Sprintf("Weather information for '%s' is not available.", args.City)}
 }
 
 type analyzeSentimentArgs struct {
-	Text string
+	Text string `json:"text"`
 }
 
 type analyzeSentimentResult struct {
@@ -132,6 +132,8 @@ func run(ctx context.Context, r *runner.Runner, sessionID string, prompt string)
 			log.Fatalf("ERROR during agent execution: %v", err)
 		}
 
-		fmt.Printf("Agent Response: %s\n", event.Content.Parts[0].Text)
+		if event.Content.Parts[0].Text != "" {
+			fmt.Printf("Agent Response: %s\n", event.Content.Parts[0].Text)
+		}
 	}
 }

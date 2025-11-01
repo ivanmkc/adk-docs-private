@@ -90,6 +90,8 @@ func run(ctx context.Context, r *runner.Runner, sessionID string, prompt string)
 			log.Fatalf("ERROR during agent execution: %v", err)
 		}
 
-		fmt.Printf("Agent Response: %s\n", event.Content.Parts[0].Text)
+		if event.Content.Parts[0].Text != "" {
+			fmt.Printf("Agent Response: %s\n", event.Content.Parts[0].Text)
+		}
 	}
 }
