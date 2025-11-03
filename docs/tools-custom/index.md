@@ -96,6 +96,11 @@ The following example showcases how an agent can use tools by **referencing thei
     ```java
     --8<-- "examples/java/snippets/src/main/java/tools/WeatherSentimentAgentApp.java:full_code"
     ```
+=== "Go"
+    ```go
+    // TODO: update once available
+    ```
+
 
 === "Go"
 
@@ -173,6 +178,38 @@ The `tool_context.state` attribute provides direct read and write access to the 
       // resulting tool response event's actions.stateDelta.
     }
     ```
+=== "Go"
+    ```go
+    import (
+      "fmt"
+
+      "google.com/agent/tools"
+    )
+
+    // Updates a user-specific preference.
+    func updateUserThemePreference(value string, toolContext *tools.ToolContext) (map[string]any, error) {
+      userPrefsKey := "user:preferences:theme"
+
+      // Get current preferences or initialize if none exist
+      preference, _ := toolContext.State[userPrefsKey].(string)
+      if preference == "" {
+        preference = value
+      }
+
+      // Write the updated value back to the state
+      toolContext.State[userPrefsKey] = preference
+      fmt.Printf("Tool: Updated user preference %s to %s\n", userPrefsKey, preference)
+
+      return map[string]any{
+        "status":             "success",
+        "updated_preference": toolContext.State[userPrefsKey],
+      }, nil
+      // When the LLM calls updateUserThemePreference("dark"):
+      // The toolContext.State will be updated, and the change will be part of the
+      // resulting tool response event's actions.StateDelta.
+    }
+    ```
+
 
 === "Go"
 
@@ -202,6 +239,10 @@ The `tool_context.actions` attribute (`ToolContext.actions()` in Java) holds an 
 
     ```java
     --8<-- "examples/java/snippets/src/main/java/tools/CustomerSupportAgentApp.java:full_code"
+    ```
+=== "Go"
+    ```go
+    // TODO: update once available
     ```
 
 === "Go"
@@ -310,6 +351,64 @@ These methods provide convenient ways for your tool to interact with persistent 
     //      FunctionTool.create(ToolContextArtifactExample.class, "processDocument");
     // In the Agent, include this function tool.
     // LlmAgent agent = LlmAgent().builder().tools(processDocumentTool).build();
+    ```
+=== "Go"
+    ```go
+    import (
+      "context"
+      "fmt"
+
+      "google.com/agent/tools"
+      "google.golang.org/genai"
+    )
+
+    // Analyzes a document using context from memory.
+    // You can also list, load and save artifacts using Callback Context or LoadArtifacts tool.
+    func processDocument(documentName, analysisQuery string, toolContext *tools.ToolContext) (map[string]any, error) {
+      ctx := context.Background() // Or pass context in.
+
+      // 1. List all available artifacts
+      artifactList, err := toolContext.ListArtifacts(ctx)
+      if err != nil {
+        return nil, fmt.Errorf("failed to list artifacts: %w", err)
+      }
+      fmt.Printf("Listing all available artifacts: %v\n", artifactList)
+
+      // 2. Load an artifact
+      fmt.Printf("Tool: Attempting to load artifact: %s\n", documentName)
+      documentPart, err := toolContext.LoadArtifact(ctx, documentName, "")
+      if err != nil {
+        // Specific error handling for not found might be needed depending on the service implementation.
+        fmt.Printf("Tool: Document '%s' not found or could not be loaded: %v\n", documentName, err)
+        return map[string]any{
+          "status":  "error",
+          "message": fmt.Sprintf("Document '%s' not found.", documentName),
+        }, nil
+      }
+      documentText := documentPart.Text
+      fmt.Printf("Tool: Loaded document '%s' (%d chars).\n", documentName, len(documentText))
+
+      // 3. Perform analysis (placeholder)
+      analysisResult := fmt.Sprintf("Analysis of '%s' regarding '%s' [Placeholder Analysis Result]", documentName, analysisQuery)
+      fmt.Println("Tool: Performed analysis.")
+
+      // 4. Save the analysis result as a new artifact
+      analysisPart := genai.NewContentFromText(analysisResult, "user")
+      newArtifactName := "analysis_" + documentName
+
+      if _, err := toolContext.SaveArtifact(ctx, newArtifactName, analysisPart.Parts[0]); err != nil {
+        return nil, fmt.Errorf("failed to save artifact: %w", err)
+      }
+
+      return map[string]any{
+        "status":            "success",
+        "analysis_artifact": newArtifactName,
+      }, nil
+    }
+
+    // processDocumentTool, err := tool.New("ProcessDocument", "Analyzes a document.", processDocument)
+    // // In the Agent, include this function tool.
+    // // agent, err := llmagent.New(&llmagent.Config{Tools: []*tool.Tool{processDocumentTool}})
     ```
 
 === "Go"
