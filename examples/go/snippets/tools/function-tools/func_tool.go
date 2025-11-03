@@ -75,10 +75,9 @@ func createStockAgent(ctx context.Context) (agent.Agent, error) {
 		log.Fatalf("Failed to create model: %v", err)
 	}
 
-
 	return llmagent.New(llmagent.Config{
-		Name: "stock_agent",
-		Model: model,
+		Name:        "stock_agent",
+		Model:       model,
 		Instruction: "You are an agent who retrieves stock prices. If a ticker symbol is provided, fetch the current price. If only a company name is given, first perform a Google search to find the correct ticker symbol before retrieving the stock price. If the provided ticker symbol is invalid or data cannot be retrieved, inform the user that the stock price could not be found.",
 		Description: "This agent specializes in retrieving real-time stock prices. Given a stock ticker symbol (e.g., AAPL, GOOG, MSFT) or the stock name, use the tools and reliable data sources to provide the most up-to-date price.",
 		Tools: []tool.Tool{
@@ -239,6 +238,7 @@ func RunAgentAsToolSimulation() {
 	callAgent(context.Background(), mainAgent, prompt)
 	fmt.Println("\n---")
 }
+
 // --8<-- [end:agent_tool_example]
 
 func main() {
