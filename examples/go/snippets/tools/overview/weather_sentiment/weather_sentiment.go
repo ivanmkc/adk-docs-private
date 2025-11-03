@@ -30,10 +30,10 @@ import (
 )
 
 const (
-	appName    = "weather_sentiment_agent"
-	userID     = "user1234"
-	sessionID  = "1234"
-	modelID    = "gemini-2.0-flash"
+	appName   = "weather_sentiment_agent"
+	userID    = "user1234"
+	sessionID = "1234"
+	modelID   = "gemini-2.0-flash"
 )
 
 // getWeatherReportArgs defines the arguments for the getWeatherReport tool.
@@ -43,9 +43,9 @@ type getWeatherReportArgs struct {
 
 // getWeatherReportResult defines the result of the getWeatherReport tool.
 type getWeatherReportResult struct {
-	Status        string `json:"status"`
-	Report        string `json:"report,omitempty"`
-	ErrorMessage  string `json:"error_message,omitempty"`
+	Status       string `json:"status"`
+	Report       string `json:"report,omitempty"`
+	ErrorMessage string `json:"error_message,omitempty"`
 }
 
 // getWeatherReport retrieves the current weather report for a specified city.
@@ -192,5 +192,3 @@ You can handle these tasks sequentially if needed.`,
 		}
 	}
 }
-
-

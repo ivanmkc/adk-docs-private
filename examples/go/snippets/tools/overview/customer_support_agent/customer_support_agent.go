@@ -149,4 +149,3 @@ If the user indicates urgency, use the 'check_and_transfer' tool.`,
 		}
 	}
 }
-
