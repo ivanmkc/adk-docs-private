@@ -49,6 +49,15 @@ type getWeatherReportResult struct {
 }
 
 // getWeatherReport retrieves the current weather report for a specified city.
+// Use this tool ONLY when a user explicitly asks for the weather in a
+// specific city and provides the city's name.
+//
+// On success, the 'Status' field will be 'success' and the 'Report' field
+// will contain the weather details.
+// On failure, the 'Status' field will be 'error' and the 'ErrorMessage'
+// field will explain why the information could not be retrieved.
+// Example success: {Status: "success", Report: "The weather in Paris is sunny..."}
+// Example error:   {Status: "error", ErrorMessage: "Weather information for 'Paris' is not available."}
 func getWeatherReport(ctx tool.Context, args getWeatherReportArgs) getWeatherReportResult {
 	switch strings.ToLower(args.City) {
 	case "london":

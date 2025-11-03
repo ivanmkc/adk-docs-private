@@ -98,7 +98,7 @@ The following example showcases how an agent can use tools by **referencing thei
     ```
 === "Go"
     ```go
-    // TODO: update once available
+    --8<-- "examples/go/snippets/tools/overview/weather_sentiment/weather_sentiment.go"
     ```
 
 
@@ -183,11 +183,11 @@ The `tool_context.state` attribute provides direct read and write access to the 
     import (
       "fmt"
 
-      "google.com/agent/tools"
+      "google.golang.org/adk/tool"
     )
 
     // Updates a user-specific preference.
-    func updateUserThemePreference(value string, toolContext *tools.ToolContext) (map[string]any, error) {
+    func updateUserThemePreference(value string, toolContext *tool.Context) (map[string]any, error) {
       userPrefsKey := "user:preferences:theme"
 
       // Get current preferences or initialize if none exist
@@ -242,7 +242,7 @@ The `tool_context.actions` attribute (`ToolContext.actions()` in Java) holds an 
     ```
 === "Go"
     ```go
-    // TODO: update once available
+    --8<-- "examples/go/snippets/tools/overview/customer_support_agent/customer_support_agent.go"
     ```
 
 === "Go"
@@ -354,61 +354,7 @@ These methods provide convenient ways for your tool to interact with persistent 
     ```
 === "Go"
     ```go
-    import (
-      "context"
-      "fmt"
-
-      "google.com/agent/tools"
-      "google.golang.org/genai"
-    )
-
-    // Analyzes a document using context from memory.
-    // You can also list, load and save artifacts using Callback Context or LoadArtifacts tool.
-    func processDocument(documentName, analysisQuery string, toolContext *tools.ToolContext) (map[string]any, error) {
-      ctx := context.Background() // Or pass context in.
-
-      // 1. List all available artifacts
-      artifactList, err := toolContext.ListArtifacts(ctx)
-      if err != nil {
-        return nil, fmt.Errorf("failed to list artifacts: %w", err)
-      }
-      fmt.Printf("Listing all available artifacts: %v\n", artifactList)
-
-      // 2. Load an artifact
-      fmt.Printf("Tool: Attempting to load artifact: %s\n", documentName)
-      documentPart, err := toolContext.LoadArtifact(ctx, documentName, "")
-      if err != nil {
-        // Specific error handling for not found might be needed depending on the service implementation.
-        fmt.Printf("Tool: Document '%s' not found or could not be loaded: %v\n", documentName, err)
-        return map[string]any{
-          "status":  "error",
-          "message": fmt.Sprintf("Document '%s' not found.", documentName),
-        }, nil
-      }
-      documentText := documentPart.Text
-      fmt.Printf("Tool: Loaded document '%s' (%d chars).\n", documentName, len(documentText))
-
-      // 3. Perform analysis (placeholder)
-      analysisResult := fmt.Sprintf("Analysis of '%s' regarding '%s' [Placeholder Analysis Result]", documentName, analysisQuery)
-      fmt.Println("Tool: Performed analysis.")
-
-      // 4. Save the analysis result as a new artifact
-      analysisPart := genai.NewContentFromText(analysisResult, "user")
-      newArtifactName := "analysis_" + documentName
-
-      if _, err := toolContext.SaveArtifact(ctx, newArtifactName, analysisPart.Parts[0]); err != nil {
-        return nil, fmt.Errorf("failed to save artifact: %w", err)
-      }
-
-      return map[string]any{
-        "status":            "success",
-        "analysis_artifact": newArtifactName,
-      }, nil
-    }
-
-    // processDocumentTool, err := tool.New("ProcessDocument", "Analyzes a document.", processDocument)
-    // // In the Agent, include this function tool.
-    // // agent, err := llmagent.New(&llmagent.Config{Tools: []*tool.Tool{processDocumentTool}})
+    --8<-- "examples/go/snippets/tools/overview/document_analyzer/document_analyzer.go"
     ```
 
 === "Go"
@@ -515,6 +461,39 @@ Here are key guidelines for defining effective tool functions:
             response.put("error_message", String.format("Weather information for '%s' is not available.", city));
         }
         return response;
+    }
+    ```
+=== "Go"
+
+    ```go
+        // getWeatherReport retrieves the current weather report for a specified city.
+    // Use this tool ONLY when a user explicitly asks for the weather in a
+    // specific city and provides the city's name.
+    //
+    // On success, the 'Status' field will be 'success' and the 'Report' field
+    // will contain the weather details.
+    // On failure, the 'Status' field will be 'error' and the 'ErrorMessage'
+    // field will explain why the information could not be retrieved.
+    // Example success: {Status: "success", Report: "The weather in Paris is sunny..."}
+    // Example error:   {Status: "error", ErrorMessage: "Weather information for 'Paris' is not available."}
+    func getWeatherReport(ctx tool.Context, args getWeatherReportArgs) getWeatherReportResult {
+      switch strings.ToLower(args.City) {
+      case "london":
+        return getWeatherReportResult{
+          Status: "success",
+          Report: "The current weather in London is cloudy with a temperature of 18 degrees Celsius and a chance of rain.",
+        }
+      case "paris":
+        return getWeatherReportResult{
+          Status: "success",
+          Report: "The weather in Paris is sunny with a temperature of 25 degrees Celsius.",
+        }
+      default:
+        return getWeatherReportResult{
+          Status:       "error",
+          ErrorMessage: fmt.Sprintf("Weather information for '%s' is not available.", args.City),
+        }
+      }
     }
     ```
 
