@@ -15,7 +15,7 @@ Once you sign up, get an [API key](https://cloud.google.com/vertex-ai/generative
 ## Create an Agent Engine
 
 `Session` objects are children of an `AgentEngine`. When using Vertex AI Express Mode, we can create an empty `AgentEngine` parent to manage all of our `Session` and `Memory` objects.
-First, ensure that your environment variables are set correctly. For example, in Python:
+First, ensure that your environment variables are set correctly. For example:
 
 ```env title="weather_agent/.env"
 GOOGLE_GENAI_USE_VERTEXAI=TRUE
@@ -28,27 +28,31 @@ Next, we can create our Agent Engine instance. You can use the Gen AI SDK.
 
     1. Import Gen AI SDK.
 
+        === "Python"
         ```py
         from google import genai
         ```
 
     2. Set Vertex AI to be True, then use a `POST` request to create the Agent Engine
 
-        ```py
-        # Create Agent Engine with Gen AI SDK
-        client = genai.Client(vertexai=True)._api_client
+        === "Python"
+            ```py
+            # Create Agent Engine with Gen AI SDK
+            client = genai.Client(vertexai=True)._api_client
 
-        response = client.request(
-            http_method='POST',
-            path=f'reasoningEngines',
-            request_dict={"displayName": "YOUR_AGENT_ENGINE_DISPLAY_NAME", "description": "YOUR_AGENT_ENGINE_DESCRIPTION"},
-        )
-        response
-        ```
+            response = client.request(
+                http_method='POST',
+                path=f'reasoningEngines',
+                request_dict={"displayName": "YOUR_AGENT_ENGINE_DISPLAY_NAME", "description": "YOUR_AGENT_ENGINE_DESCRIPTION"},
+            )
+            response
+            ```
+
 
     3. Replace `YOUR_AGENT_ENGINE_DISPLAY_NAME` and `YOUR_AGENT_ENGINE_DESCRIPTION` with your use case.
     4. Get the Agent Engine name and ID from the response
 
+        === "Python"
         ```py
         APP_NAME = "/".join(response['name'].split("/")[:6])
         APP_ID = APP_NAME.split('/')[-1]
