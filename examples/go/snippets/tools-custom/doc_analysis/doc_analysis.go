@@ -21,13 +21,24 @@ type processDocumentResult struct {
 
 func processDocument(ctx tool.Context, args processDocumentArgs) processDocumentResult {
 	fmt.Printf("Tool: Attempting to load artifact: %s\n", args.DocumentName)
+
+	// List all artifacts
+	listResponse, err := ctx.Artifacts().List(ctx)
+	if err != nil {
+		return processDocumentResult{Status: "error", Message: "Failed to list artifacts."}
+	}
+
+	fmt.Println("Tool: Available artifacts:")
+	for _, file := range listResponse.FileNames {
+		fmt.Printf(" - %s\n", file)
+	}
+
 	documentPart, err := ctx.Artifacts().Load(ctx, args.DocumentName)
 	if err != nil {
 		return processDocumentResult{Status: "error", Message: fmt.Sprintf("Document '%s' not found.", args.DocumentName)}
 	}
 
-	documentText := documentPart.Part.Text
-	fmt.Printf("Tool: Loaded document '%s' (%d chars).\n", args.DocumentName, len(documentText))
+	fmt.Printf("Tool: Loaded document '%s' of size %d bytes.\n", args.DocumentName, len(documentPart.Part.InlineData.Data))
 
 	// 3. Search memory for related context
 	fmt.Printf("Tool: Searching memory for context related to: '%s'\n", args.AnalysisQuery)
