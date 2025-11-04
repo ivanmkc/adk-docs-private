@@ -4,11 +4,13 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 
 	"google.golang.org/adk/agent"
 	"google.golang.org/adk/agent/llmagent"
 	"google.golang.org/adk/artifact"
 	"google.golang.org/adk/memory"
+	"google.golang.org/adk/model"
 	"google.golang.org/adk/model/gemini"
 	"google.golang.org/adk/runner"
 	"google.golang.org/adk/session"
@@ -16,6 +18,43 @@ import (
 	"google.golang.org/adk/tool/functiontool"
 	"google.golang.org/genai"
 )
+
+func saveStoryBytes(ctx agent.CallbackContext, req *model.LLMRequest) (*model.LLMResponse, error) {
+	// Get the report data from the session state.
+	storyData, err := ctx.State().Get("story_bytes")
+	if err != nil {
+		log.Printf("No report data found in session state: %v", err)
+		return nil, nil // No report to save, continue normally.
+	}
+
+	// Check if the report data is in the expected format.
+	storyBytes, ok := storyData.([]byte)
+	if !ok {
+		log.Printf("Report data in session state was not in the expected byte format.")
+		return nil, nil
+	}
+
+	// Create a new artifact with the report data.
+	documentArtifact := &genai.Part{
+		InlineData: &genai.Blob{
+			MIMEType: "application/pdf",
+			Data:     storyBytes,
+		},
+	}
+	// Set the filename for the artifact.
+	filename := "my_document.pdf"
+	// Save the artifact to the artifact service.
+	_, err = ctx.Artifacts().Save(ctx, filename, documentArtifact)
+	if err != nil {
+		log.Printf("An unexpected error occurred during Go artifact save: %v", err)
+		// Depending on requirements, you might want to return an error to the user.
+		return nil, nil
+	}
+	log.Printf("Successfully saved Go artifact '%s'.", filename)
+
+	// Return nil to continue to the next callback or the model.
+	return nil, nil
+}
 
 func main() {
 	ctx := context.Background()
@@ -36,10 +75,11 @@ func main() {
 	}
 
 	mainAgent, err := llmagent.New(llmagent.Config{
-		Name:        "main_agent",
-		Model:       model,
-		Instruction: "You are an agent that can process documents.",
-		Tools:       []tool.Tool{docAnalysisTool},
+		Name:                 "main_agent",
+		Model:                model,
+		Instruction:          "You are an agent that can process documents.",
+		Tools:                []tool.Tool{docAnalysisTool},
+		BeforeModelCallbacks: []llmagent.BeforeModelCallback{saveStoryBytes},
 	})
 	if err != nil {
 		log.Fatal(err)
@@ -59,7 +99,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	session, err := sessionService.Create(ctx, &session.CreateRequest{
+	session1, err := sessionService.Create(ctx, &session.CreateRequest{
 		AppName: "doc_analysis",
 		UserID:  "user1234",
 	})
@@ -67,11 +107,25 @@ func main() {
 		log.Fatal(err)
 	}
 
+	storyBytes, _ := os.ReadFile("story.pdf") // Load a sample PDF file
+	initialState := map[string]any{
+		"story_bytes": storyBytes,
+	}
+
+	session2, err := sessionService.Create(ctx, &session.CreateRequest{
+		AppName: "doc_analysis",
+		UserID:  "user1234",
+		State:   initialState,
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	// First run to populate memory. The agent will respond, and the runner will
 	// automatically add the interaction to the memory service.
-	run(ctx, runner, session.Session.ID(), "I am very interested in positive sentiment analysis.")
+	run(ctx, runner, session1.Session.ID(), "I am very interested in positive sentiment analysis.")
 	// Second run that uses the tool to search the memory populated by the first run.
-	run(ctx, runner, session.Session.ID(), "process the document named 'my_document' and analyze it for 'sentiment'")
+	run(ctx, runner, session2.Session.ID(), "process the document named 'my_document.pdf' and analyze it for 'sentiment'")
 }
 
 func run(ctx context.Context, r *runner.Runner, sessionID string, prompt string) {
