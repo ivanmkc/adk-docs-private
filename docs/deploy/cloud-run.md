@@ -100,7 +100,7 @@ the following content is uploaded to the service:
 - ADK API server code version used by your agent
 
 The default deployment *does not* include the ADK web user interface libraries,
-unless you specify it as deployment setting, such as the `--webui` option for
+unless you specify it as deployment setting, such as the `--with_ui` option for
 `adk deploy cloud_run` command.
 
 ## Deployment commands
@@ -179,7 +179,7 @@ unless you specify it as deployment setting, such as the `--webui` option for
     * Enter `y` to allow public access to your agent's API endpoint without authentication.
     * Enter `N` (or press Enter for the default) to require authentication (e.g., using an identity token as shown in the "Testing your agent" section).
 
-    Upon successful execution, the command will deploy your agent to Cloud Run and provide the URL of the deployed service.
+    Upon successful execution, the command deploys your agent to Cloud Run and provide the URL of the deployed service.
 
 === "Python - gcloud CLI"
 
@@ -396,6 +396,8 @@ unless you specify it as deployment setting, such as the `--webui` option for
         within the Cloud Run container. Defaults to 8080.
     * --a2a: (Optional) If included, enables Agent-to-Agent communication. Enabled by
         default.
+    * --a2a_agent_url: (Optional) A2A agent card URL as advertised in the public agent card. This flag is only valid when   
+        used with the --a2a flag.
     * --api: (Optional) If included, deploys the ADK API server. Enabled by default.
     * --webui: (Optional) If included, deploys the ADK dev UI alongside the agent API
         server. Enabled by default.
