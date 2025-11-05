@@ -27,13 +27,12 @@ A well-defined function signature is crucial for the LLM to use your tool correc
 
 #### Parameters
 
-You can define functions with required parameters, optional parameters, and variadic arguments. Here’s how each is handled:
-
 ##### Required Parameters
-A parameter is considered **required** if it has a type hint but **no default value**. The LLM must provide a value for this argument when it calls the tool.
 
-???+ "Example: Required Parameters"
-    === "Python"
+=== "Python"
+    A parameter is considered **required** if it has a type hint but **no default value**. The LLM must provide a value for this argument when it calls the tool. The parameter's description is taken from the function's docstring.
+
+    ???+ "Example: Required Parameters"
         ```python
         def get_weather(city: str, unit: str):
             """
@@ -48,11 +47,33 @@ A parameter is considered **required** if it has a type hint but **no default va
         ```
     In this example, both `city` and `unit` are mandatory. If the LLM tries to call `get_weather` without one of them, the ADK will return an error to the LLM, prompting it to correct the call.
 
-##### Optional Parameters with Default Values
-A parameter is considered **optional** if you provide a **default value**. This is the standard Python way to define optional arguments. The ADK correctly interprets these and does not list them in the `required` field of the tool schema sent to the LLM.
+=== "Go"
+    In Go, you use struct tags to control the JSON schema. The two primary tags are `json` and `jsonschema`.
 
-???+ "Example: Optional Parameter with Default Value"
-    === "Python"
+    A parameter is considered **required** if its struct field does **not** have the `omitempty` or `omitzero` option in its `json` tag.
+
+    The `jsonschema` tag is used to provide the argument's description. This is crucial for the LLM to understand what the argument is for.
+
+    ???+ "Example: Required Parameters"
+        ```go
+        // GetWeatherParams defines the arguments for the getWeather tool.
+        type GetWeatherParams struct {
+            // This field is REQUIRED (no "omitempty").
+            // The jsonschema tag provides the description.
+            Location string `json:"location" jsonschema:"The city and state, e.g., San Francisco, CA"`
+
+            // This field is also REQUIRED.
+            Unit     string `json:"unit" jsonschema:"The temperature unit, either 'celsius' or 'fahrenheit'"`
+        }
+        ```
+    In this example, both `location` and `unit` are mandatory.
+
+##### Optional Parameters
+
+=== "Python"
+    A parameter is considered **optional** if you provide a **default value**. This is the standard Python way to define optional arguments. You can also mark a parameter as optional using `typing.Optional[SomeType]` or the `| None` syntax (Python 3.10+).
+
+    ???+ "Example: Optional Parameters"
         ```python
         def search_flights(destination: str, departure_date: str, flexible_days: int = 0):
             """
@@ -69,6 +90,25 @@ A parameter is considered **optional** if you provide a **default value**. This 
             return {"status": "success", "report": f"Found flights to {destination} on {departure_date}."}
         ```
     Here, `flexible_days` is optional. The LLM can choose to provide it, but it's not required.
+
+=== "Go"
+    A parameter is considered **optional** if its struct field has the `omitempty` or `omitzero` option in its `json` tag.
+
+    ???+ "Example: Optional Parameters"
+        ```go
+        // GetWeatherParams defines the arguments for the getWeather tool.
+        type GetWeatherParams struct {
+            // Location is required.
+            Location string `json:"location" jsonschema:"The city and state, e.g., San Francisco, CA"`
+
+            // Unit is optional.
+            Unit string `json:"unit,omitempty" jsonschema:"The temperature unit, either 'celsius' or 'fahrenheit'"`
+
+            // Days is optional.
+            Days int `json:"days,omitzero" jsonschema:"The number of forecast days to return (defaults to 1)"`
+        }
+        ```
+    Here, `unit` and `days` are optional. The LLM can choose to provide them, but they are not required.
 
 ##### Optional Parameters with `typing.Optional`
 You can also mark a parameter as optional using `typing.Optional[SomeType]` or the `| None` syntax (Python 3.10+). This signals that the parameter can be `None`. When combined with a default value of `None`, it behaves as a standard optional parameter.
@@ -94,6 +134,7 @@ You can also mark a parameter as optional using `typing.Optional[SomeType]` or t
 
 ##### Variadic Parameters (`*args` and `**kwargs`)
 While you can include `*args` (variable positional arguments) and `**kwargs` (variable keyword arguments) in your function signature for other purposes, they are **ignored by the ADK framework** when generating the tool schema for the LLM. The LLM will not be aware of them and cannot pass arguments to them. It's best to rely on explicitly defined parameters for all data you expect from the LLM.
+
 
 #### Return Type
 
