@@ -235,7 +235,7 @@ func runBeforeAgentCallbackCheck() {
 // --8<-- [start:tool_context_tool]
 // Pseudocode: Tool function receiving ToolContext
 type searchExternalAPIArgs struct {
-	Query string `json:"query"`
+	Query string `json:"query" jsonschema:"The query to search for."`
 }
 
 type searchExternalAPIResults struct {
@@ -596,8 +596,8 @@ func runPassingDataExample() {
 // --8<-- [start:updating_preferences]
 // Pseudocode: Tool or Callback identifies a preference
 type setUserPreferenceArgs struct {
-	Preference string `json:"preference"`
-	Value      string `json:"value"`
+	Preference string `json:"preference" jsonschema:"The name of the preference to set."`
+	Value      string `json:"value" jsonschema:"The value to set for the preference."`
 }
 
 type setUserPreferenceResult struct {
@@ -715,7 +715,7 @@ func checkAvailableDocs(tc tool.Context, args checkAvailableDocsArgs) checkAvail
 // --8<-- [start:artifacts_save_ref]
 // Adapt the saveDocumentReference callback into a tool for this example.
 type saveDocRefArgs struct {
-	FilePath string `json:"file_path"`
+	FilePath string `json:"file_path" jsonschema:"The path to the file to save."`
 }
 
 type saveDocRefResult struct {
