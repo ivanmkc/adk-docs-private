@@ -135,6 +135,10 @@ nav:
       - get-started/index.md
       - Python: get-started/python.md
       - Java: get-started/java.md
+<<<<<<< HEAD
+=======
+      - Go: get-started/go.md
+>>>>>>> 76db7a8 (Reverted to proper ToC and added missing links)
     - Build your Agent:
       - tutorials/index.md
       - Multi-tool agent: get-started/quickstart.md
