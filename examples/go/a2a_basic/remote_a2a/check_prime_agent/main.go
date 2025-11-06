@@ -53,6 +53,7 @@ func checkPrimeTool(tc tool.Context, args checkPrimeToolArgs) string {
 	return fmt.Sprintf("%s are prime numbers.", strings.Join(primeStrings, ", "))
 }
 
+// --8<-- [start:a2a-launcher]
 func main() {
 	ctx := context.Background()
 	primeTool, err := functiontool.New(functiontool.Config{
@@ -106,3 +107,5 @@ func main() {
 		log.Fatalf("launcher.Run() error = %v", err)
 	}
 }
+
+// --8<-- [end:a2a-launcher]

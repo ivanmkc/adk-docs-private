@@ -38,7 +38,7 @@ func newRollAgent(ctx context.Context) (agent.Agent, error) {
 		return nil, fmt.Errorf("failed to create roll_die tool: %w", err)
 	}
 
-	model, err := gemini.NewModel(ctx, "gemini-1.5-flash", &genai.ClientConfig{})
+	model, err := gemini.NewModel(ctx, "gemini-2.0-flash", &genai.ClientConfig{})
 	if err != nil {
 		return nil, fmt.Errorf("failed to create model for roll agent: %w", err)
 	}
@@ -54,6 +54,7 @@ func newRollAgent(ctx context.Context) (agent.Agent, error) {
 
 // --- Remote Prime Agent ---
 
+// --8<-- [start:new-prime-agent]
 func newPrimeAgent() (agent.Agent, error) {
 	remoteAgent, err := remoteagent.New(remoteagent.A2AConfig{
 		Name:            "prime_agent",
@@ -66,8 +67,11 @@ func newPrimeAgent() (agent.Agent, error) {
 	return remoteAgent, nil
 }
 
+// --8<-- [end:new-prime-agent]
+
 // --- Root Agent ---
 
+// --8<-- [start:new-root-agent]
 func newRootAgent(ctx context.Context, rollAgent, primeAgent agent.Agent) (agent.Agent, error) {
 	model, err := gemini.NewModel(ctx, "gemini-2.0-flash", &genai.ClientConfig{})
 	if err != nil {
@@ -89,6 +93,8 @@ func newRootAgent(ctx context.Context, rollAgent, primeAgent agent.Agent) (agent
 		Tools:     []tool.Tool{},
 	})
 }
+
+// --8<-- [end:new-root-agent]
 
 // --- Main Function ---
 
@@ -133,7 +139,7 @@ func main() {
 		log.Fatalf("Failed to create runner: %v", err)
 	}
 
-	userInput := "check if 263 is prime using subagent"
+	userInput := "Roll a 6-sided die"
 	fmt.Printf("User: %s\n", userInput)
 
 	inputContent := genai.NewContentFromText(userInput, genai.RoleUser)
