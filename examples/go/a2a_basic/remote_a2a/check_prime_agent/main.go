@@ -2,7 +2,7 @@ package main
 
 import (
 	"context"
-	"iter"
+	"fmt"
 	"log"
 	"strconv"
 	"strings"
@@ -11,7 +11,7 @@ import (
 	"google.golang.org/adk/cmd/launcher/adk"
 	"google.golang.org/adk/cmd/launcher/web"
 	"google.golang.org/adk/cmd/launcher/web/a2a"
-	"google.golang.org/adk/model"
+	"google.golang.org/adk/model/gemini"
 	"google.golang.org/adk/server/restapi/services"
 	"google.golang.org/adk/session"
 	"google.golang.org/adk/tool"
@@ -36,15 +36,25 @@ type checkPrimeToolArgs struct {
 	Nums []int `json:"nums"`
 }
 
-func checkPrimeTool(tc tool.Context, args checkPrimeToolArgs) map[string]any {
-	results := make(map[int]bool)
+func checkPrimeTool(tc tool.Context, args checkPrimeToolArgs) string {
+	var primes []int
 	for _, num := range args.Nums {
-		results[num] = isPrime(num)
+		if isPrime(num) {
+			primes = append(primes, num)
+		}
 	}
-	return map[string]any{"results": results}
+	if len(primes) == 0 {
+		return "No prime numbers found."
+	}
+	var primeStrings []string
+	for _, p := range primes {
+		primeStrings = append(primeStrings, strconv.Itoa(p))
+	}
+	return fmt.Sprintf("%s are prime numbers.", strings.Join(primeStrings, ", "))
 }
 
 func main() {
+	ctx := context.Background()
 	primeTool, err := functiontool.New(functiontool.Config{
 		Name:        "prime_checking",
 		Description: "Check if numbers in a list are prime using efficient mathematical algorithms",
@@ -53,11 +63,21 @@ func main() {
 		log.Fatalf("Failed to create prime_checking tool: %v", err)
 	}
 
+	model, err := gemini.NewModel(ctx, "gemini-2.0-flash", &genai.ClientConfig{})
+	if err != nil {
+		log.Fatalf("Failed to create model: %v", err)
+	}
+
 	primeAgent, err := llmagent.New(llmagent.Config{
 		Name:        "check_prime_agent",
-		Description: "An agent specialized in checking whether numbers are prime. It can efficiently determine the primality of individual numbers or lists of numbers.",
-		Model:       &dummyLLM{}, // A dummy LLM as we are just exposing a tool.
-		Tools:       []tool.Tool{primeTool},
+		Description: "check prime agent that can check whether numbers are prime.",
+		Instruction: `
+			You check whether numbers are prime.
+			When checking prime numbers, call the check_prime tool with a list of integers. Be sure to pass in a list of integers. You should never pass in a string.
+			You should not rely on the previous history on prime results.
+    `,
+		Model: model,
+		Tools: []tool.Tool{primeTool},
 	})
 	if err != nil {
 		log.Fatalf("Failed to create agent: %v", err)
@@ -85,42 +105,4 @@ func main() {
 	if err := launcher.Run(context.Background(), config); err != nil {
 		log.Fatalf("launcher.Run() error = %v", err)
 	}
-}
-
-// dummyLLM is a placeholder as llmagent requires a model.
-type dummyLLM struct{}
-
-func (d *dummyLLM) Name() string {
-	return "dummy-llm-for-prime-agent"
-}
-
-func (d *dummyLLM) GenerateContent(ctx context.Context, req *model.LLMRequest, stream bool) iter.Seq2[*model.LLMResponse, error] {
-	return func(yield func(*model.LLMResponse, error) bool) {
-		// This LLM will just call the tool if it sees it in the prompt.
-		// This is a simplification for the example.
-		for _, content := range req.Contents {
-			for _, part := range content.Parts {
-				if strings.Contains(part.Text, "prime") {
-					// A real implementation would parse numbers from the text.
-					yield(&model.LLMResponse{
-						Content: &genai.Content{
-							Parts: []*genai.Part{
-								{FunctionCall: &genai.FunctionCall{Name: "prime_checking", Args: map[string]any{"nums": []int{7}}}},
-							},
-						},
-					}, nil)
-					return
-				}
-			}
-		}
-		yield(&model.LLMResponse{
-			Content: &genai.Content{
-				Parts: []*genai.Part{genai.NewPartFromText("I can check for prime numbers.")},
-			},
-		}, nil)
-	}
-}
-
-func (m *dummyLLM) CountTokens(ctx context.Context, req *model.LLMRequest) (int, error) {
-	return 0, nil // Not implemented for mock
 }
